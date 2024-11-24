@@ -15,8 +15,11 @@ public:
     class Vertex
     {
     public:
+        // this will store neighbours(name and weight);
         unordered_map<string, int> nbrs;
     };
+
+    // adjacency list of every station
     static unordered_map<string, Vertex> vtces;
     Graph_M()
     {
@@ -100,16 +103,22 @@ public:
             for (auto it2 = vtx.nbrs.begin(); it2 != vtx.nbrs.end(); it2++)
             {
                 string nbr = it2->first;
+
                 str += "\t" + nbr + "\t";
+
                 if (nbr.length() < 16)
                     str += "\t";
+
                 if (nbr.length() < 8)
                     str += "\t";
+
                 str += to_string(it2->second) + "\n";
             }
             cout << str << endl;
         }
+
         cout << "\t------------------" << endl;
+
         cout << "---------------------------------------------------" << endl;
     }
     void display_Stations()
@@ -180,38 +189,39 @@ public:
 
         while (!pq.empty())
         {
-            DijkstraPair rp = pq.top();
+            DijkstraPair cp = pq.top();
             pq.pop();
-            if (rp.vname == des)
+            if (cp.vname == des)
             {
-                val = rp.cost;
+                val = cp.cost;
                 break;
             }
-            map.erase(rp.vname);
-            ans.push_back(rp.vname);
-            Vertex v = vtces[rp.vname];
+            map.erase(cp.vname);
+            ans.push_back(cp.vname);
+            Vertex v = vtces[cp.vname];
             for (auto it = v.nbrs.begin(); it != v.nbrs.end(); it++)
             {
                 string nbr = it->first;
                 if (map.count(nbr))
                 {
                     int oc = map[nbr].cost;
-                    Vertex k = vtces[rp.vname];
+                    Vertex k = vtces[cp.vname];
                     int nc;
                     if (nan)
-                        nc = rp.cost + 120 + 40 * k.nbrs[nbr];
+                        nc = cp.cost + 120 + 40 * k.nbrs[nbr];
                     else
-                        nc = rp.cost + k.nbrs[nbr];
+                        nc = cp.cost + k.nbrs[nbr];
                     if (nc < oc)
                     {
                         DijkstraPair gp = map[nbr];
-                        gp.psf = rp.psf + nbr;
+                        gp.psf = cp.psf + nbr;
                         gp.cost = nc;
                         pq.push(gp);
                     }
                 }
             }
         }
+
         return val;
     }
 
@@ -241,26 +251,27 @@ public:
 
         while (!stack.empty())
         {
-            Pair rp = stack.front();
+            Pair cp = stack.front();
             stack.pop_front();
-            if (processed.count(rp.vname))
+            if (processed.count(cp.vname))
             {
                 continue;
             }
 
-            processed[rp.vname] = true;
+            processed[cp.vname] = true;
 
-            if (rp.vname == dst)
+            if (cp.vname == dst)
             {
-                int temp = rp.min_dis;
+
+                int temp = cp.min_dis;
                 if (temp < min)
                 {
-                    ans = rp.psf;
+                    ans = cp.psf;
                     min = temp;
                 }
                 continue;
             }
-            Vertex rpvtx = vtces[rp.vname];
+            Vertex rpvtx = vtces[cp.vname];
             for (auto it = rpvtx.nbrs.begin(); it != rpvtx.nbrs.end(); it++)
             {
                 string nbr = it->first;
@@ -268,8 +279,8 @@ public:
                 {
                     Pair np;
                     np.vname = nbr;
-                    np.psf = rp.psf + nbr + "  ";
-                    np.min_dis = rp.min_dis + rpvtx.nbrs[nbr];
+                    np.psf = cp.psf + nbr + "  ";
+                    np.min_dis = cp.min_dis + rpvtx.nbrs[nbr];
                     stack.push_front(np);
                 }
             }
@@ -295,26 +306,26 @@ public:
 
         while (!stack.empty())
         {
-            Pair rp = stack.front();
+            Pair cp = stack.front();
             stack.pop_front();
-            if (processed.count(rp.vname))
+            if (processed.count(cp.vname))
             {
                 continue;
             }
 
-            processed[rp.vname] = true;
+            processed[cp.vname] = true;
 
-            if (rp.vname == dst)
+            if (cp.vname == dst)
             {
-                int temp = rp.min_time;
+                int temp = cp.min_time;
                 if (temp < min)
                 {
-                    ans = rp.psf;
+                    ans = cp.psf;
                     min = temp;
                 }
                 continue;
             }
-            Vertex rpvtx = vtces[rp.vname];
+            Vertex rpvtx = vtces[cp.vname];
             for (auto it = rpvtx.nbrs.begin(); it != rpvtx.nbrs.end(); it++)
             {
                 string nbr = it->first;
@@ -322,8 +333,8 @@ public:
                 {
                     Pair np;
                     np.vname = nbr;
-                    np.psf = rp.psf + nbr + "  ";
-                    np.min_time = rp.min_time + 120 + 40 * rpvtx.nbrs[nbr];
+                    np.psf = cp.psf + nbr + "  ";
+                    np.min_time = cp.min_time + 60 +  rpvtx.nbrs[nbr]/10;
                     stack.push_front(np);
                 }
             }
@@ -335,6 +346,7 @@ public:
 
     vector<string> get_Interchanges(string str)
     {
+
         vector<string> arr;
         string res[100];
         int k = 0;
@@ -342,17 +354,22 @@ public:
         strcpy(temp, str.c_str());
         char *token = strtok(temp, "  ");
         while (token != NULL)
+
         {
             res[k++] = token;
             token = strtok(NULL, "  ");
         }
+
         arr.push_back(res[0]);
         int count = 0;
+
         for (int i = 1; i < k - 1; i++)
+
         {
             int index = res[i].find('~');
             string s = res[i].substr(index + 1);
             if (s.length() == 2)
+
             {
                 string prev = res[i - 1].substr(res[i - 1].find('~') + 1);
                 string next = res[i + 1].substr(res[i + 1].find('~') + 1);
@@ -367,7 +384,9 @@ public:
                     count++;
                 }
             }
+
             else
+
             {
                 arr.push_back(res[i]);
             }
@@ -421,8 +440,7 @@ void Create_Metro_Map(Graph_M &g)
     g.addEdge("Moti Nagar~B", "Rajouri Garden~BP", 2);
     g.addEdge("Punjabi Bagh West~P", "Rajouri Garden~BP", 2);
     g.addEdge("Punjabi Bagh West~P", "Netaji Subhash Place~PR", 3);
-    g.addEdge("IGI Airport~O",  "Dwarka Sector 21~B", 1);
-
+    g.addEdge("IGI Airport~O", "Dwarka Sector 21~B", 1);
 }
 
 void printCodelist()
@@ -451,23 +469,22 @@ void printCodelist()
         if (codes[i - 1].length() < 2)
             codes[i - 1] += toupper(key[1]);
         cout << i << ". " << key << "\t";
-    
+
         if (key.length() < (22 - m))
             cout << "\t";
-    
+
         if (key.length() < (14 - m))
             cout << "\t";
-    
+
         if (key.length() < (6 - m))
             cout << "\t";
-    
+
         cout << codes[i - 1] << endl;
         i++;
-    
+
         if (i == pow(10, m))
             m++;
     }
-
 }
 
 int main()
@@ -487,24 +504,32 @@ int main()
         cout << "5. GET SHORTEST PATH (DISTANCE WISE) TO REACH FROM A 'SOURCE' STATION TO 'DESTINATION' STATION" << endl;
         cout << "6. GET FARE PRICE TO REACH FROM A 'SOURCE' STATION TO 'DESTINATION' STATION" << endl;
         cout << "7. EXIT THE MENU" << endl;
+
         cout << "\nENTER YOUR CHOICE FROM THE ABOVE LIST (1 to 7) : ";
+
         int choice = -1;
+
         cin >> choice;
         cout << "\n***\n"
              << endl;
+
         if (choice == 7)
         {
             break;
         }
+
         if (choice == 1)
         {
             g.display_Stations();
         }
+
         else if (choice == 2)
         {
             g.display_Map();
         }
+
         else if (choice == 3)
+
         {
             printCodelist();
             cout << "\n1. TO ENTER SERIAL NO. OF STATIONS\n2. TO ENTER CODE OF STATIONS\n3. TO ENTER NAME OF STATIONS\n"
@@ -515,6 +540,7 @@ int main()
             int j;
             string st1 = "", st2 = "";
             cout << "ENTER THE SOURCE AND DESTINATION STATIONS" << endl;
+
             if (ch == 1)
             {
                 int a, b;
@@ -527,7 +553,9 @@ int main()
                 st1 = keys[a - 1];
                 st2 = keys[b - 1];
             }
+
             else if (ch == 2)
+
             {
                 string a, b;
                 cin >> a >> b;
@@ -540,21 +568,27 @@ int main()
                     {
                         char c = key[k];
                         if (isdigit(c))
+
                         {
                             code += c;
                             j++;
                         }
+
                         else if (isalpha(c))
+
                         {
                             code += c;
                         }
                     }
+
                     if (code.length() < 2)
                         code += toupper(key[1]);
+
                     if (code == a)
                     {
                         st1 = key;
                     }
+
                     if (code == b)
                     {
                         st2 = key;
@@ -575,20 +609,20 @@ int main()
                 cout << "THE INPUTS ARE INVALID" << endl;
             else
                 cout << "SHORTEST DISTANCE FROM " << st1 << " TO " << st2 << " IS " << g.dijkstra(st1, st2, false) << "KM" << endl;
-            break;
+            
         }
         else if (choice == 4)
         {
             g.display_Stations(); // Display station indices for user reference
 
             int srcIndex, desIndex;
-            std::cout << "Enter the index of the source station: ";
-            std::cin >> srcIndex;
+            cout << "Enter the index of the source station: ";
+            cin >> srcIndex;
 
-            std::cout << "Enter the index of the destination station: ";
-            std::cin >> desIndex;
+            cout << "Enter the index of the destination station: ";
+            cin >> desIndex;
 
-            std::vector<std::string> stationNames;
+            vector<std::string> stationNames;
             for (const auto &it : Graph_M::vtces)
             {
                 stationNames.push_back(it.first);
@@ -620,44 +654,44 @@ int main()
         {
             g.display_Stations();
             cout << "ENTER THE SOURCE AND DESTINATION STATIONS (by index)" << endl;
-int index1, index2;
-cin >> index1 >> index2;
+            int index1, index2;
+            cin >> index1 >> index2;
 
-unordered_map<string, bool> processed2;
-vector<string> stationNames;
-for (const auto &it : Graph_M::vtces)
-{
-    stationNames.push_back(it.first);
-}
+            unordered_map<string, bool> processed2;
+            vector<string> stationNames;
+            for (const auto &it : Graph_M::vtces)
+            {
+                stationNames.push_back(it.first);
+            }
 
-if (index1 >= 1 && index1 <= stationNames.size() &&
-    index2 >= 1 && index2 <= stationNames.size())
-{
-    string s1 = stationNames[index1 - 1];
-    string s2 = stationNames[index2 - 1];
+            if (index1 >= 1 && index1 <= stationNames.size() &&
+                index2 >= 1 && index2 <= stationNames.size())
+            {
+                string s1 = stationNames[index1 - 1];
+                string s2 = stationNames[index2 - 1];
 
-    if (!g.containsVertex(s1) || !g.containsVertex(s2) || !g.hasPath(s1, s2, processed2))
-        cout << "THE INPUTS ARE INVALID" << endl;
-    else
-    {
-        vector<string> str = g.get_Interchanges(g.Get_Minimum_Distance(s1, s2));
-        int len = str.size();
-        cout << "SOURCE STATION : " << s1 << endl;
-        cout << "DESTINATION STATION : " << s2 << endl;
-        cout << "DISTANCE : " << str[len - 1] << " KM" << endl;
-        cout << "NUMBER OF INTERCHANGES : " << str[len - 2] << endl;
+                if (!g.containsVertex(s1) || !g.containsVertex(s2) || !g.hasPath(s1, s2, processed2))
+                    cout << "THE INPUTS ARE INVALID" << endl;
+                else
+                {
+                    vector<string> str = g.get_Interchanges(g.Get_Minimum_Distance(s1, s2));
+                    int len = str.size();
+                    cout << "SOURCE STATION : " << s1 << endl;
+                    cout << "DESTINATION STATION : " << s2 << endl;
+                    cout << "DISTANCE : " << str[len - 1] << " KM" << endl;
+                    cout << "NUMBER OF INTERCHANGES : " << str[len - 2] << endl;
 
-        cout << "~" << endl;
-        cout << "START  ==>  " << str[0] << endl;
-        for (int i = 1; i < len - 2; i++)
-        {
-            cout << str[i] << endl;
-        }
-        cout << str[len - 2] << "   ==>    END";
-        cout << "\n~~~" << endl;
-    }
-}
-            break;
+                    cout << "~" << endl;
+                    cout << "START  ==>  " << str[0] << endl;
+                    for (int i = 1; i < len - 2; i++)
+                    {
+                        cout << str[i] << endl;
+                    }
+                    cout << str[len - 2] << "   ==>    END";
+                    cout << "\n~~~" << endl;
+                }
+            }
+            
         }
         else if (choice == 6)
         {
@@ -740,12 +774,13 @@ if (index1 >= 1 && index1 <= stationNames.size() &&
             {
                 cout << "FARE PRICE TO TRAVEL FROM " << st1 << " TO " << st2 << " IS " << op * 2.5 << " RUPEES" << endl;
             }
-            break;
+            
         }
         else
         {
             cout << "Please enter a valid option!" << endl;
         }
-        return 0;
+       
     }
+     return 0;
 }
