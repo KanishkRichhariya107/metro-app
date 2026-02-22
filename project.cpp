@@ -9,17 +9,31 @@
 
 using namespace std;
 
+class User {
+public:
+    string username;
+    string password;
+    int balance;
+
+    User(string user, string pass,int n) 
+    { 
+     username=user;
+     password=pass;
+     balance=n;
+    }
+};
+
 class Graph_M
 {
 public:
     class Vertex
     {
     public:
-        // this will store neighbours(name and weight);
+        // this will store neighbours(name and distance);
         unordered_map<string, int> nbrs;
     };
 
-    // adjacency list of every station
+    // adjacency list of every station(and every station is linked with a vertex which have neighbours)
     static unordered_map<string, Vertex> vtces;
     Graph_M()
     {
@@ -189,32 +203,32 @@ public:
 
         while (!pq.empty())
         {
-            DijkstraPair cp = pq.top();
+            DijkstraPair rp = pq.top();
             pq.pop();
-            if (cp.vname == des)
+            if (rp.vname == des)
             {
-                val = cp.cost;
+                val = rp.cost;
                 break;
             }
-            map.erase(cp.vname);
-            ans.push_back(cp.vname);
-            Vertex v = vtces[cp.vname];
+            map.erase(rp.vname);
+            ans.push_back(rp.vname);
+            Vertex v = vtces[rp.vname];
             for (auto it = v.nbrs.begin(); it != v.nbrs.end(); it++)
             {
                 string nbr = it->first;
                 if (map.count(nbr))
                 {
                     int oc = map[nbr].cost;
-                    Vertex k = vtces[cp.vname];
+                    Vertex k = vtces[rp.vname];
                     int nc;
                     if (nan)
-                        nc = cp.cost + 120 + 40 * k.nbrs[nbr];
+                        nc = rp.cost + 120 + 40 * k.nbrs[nbr];
                     else
-                        nc = cp.cost + k.nbrs[nbr];
+                        nc = rp.cost + k.nbrs[nbr];
                     if (nc < oc)
                     {
                         DijkstraPair gp = map[nbr];
-                        gp.psf = cp.psf + nbr;
+                        gp.psf = rp.psf + nbr;
                         gp.cost = nc;
                         pq.push(gp);
                     }
@@ -251,27 +265,27 @@ public:
 
         while (!stack.empty())
         {
-            Pair cp = stack.front();
+            Pair rp = stack.front();
             stack.pop_front();
-            if (processed.count(cp.vname))
+            if (processed.count(rp.vname))
             {
                 continue;
             }
 
-            processed[cp.vname] = true;
+            processed[rp.vname] = true;
 
-            if (cp.vname == dst)
+            if (rp.vname == dst)
             {
 
-                int temp = cp.min_dis;
+                int temp = rp.min_dis;
                 if (temp < min)
                 {
-                    ans = cp.psf;
+                    ans = rp.psf;
                     min = temp;
                 }
                 continue;
             }
-            Vertex rpvtx = vtces[cp.vname];
+            Vertex rpvtx = vtces[rp.vname];
             for (auto it = rpvtx.nbrs.begin(); it != rpvtx.nbrs.end(); it++)
             {
                 string nbr = it->first;
@@ -279,8 +293,8 @@ public:
                 {
                     Pair np;
                     np.vname = nbr;
-                    np.psf = cp.psf + nbr + "  ";
-                    np.min_dis = cp.min_dis + rpvtx.nbrs[nbr];
+                    np.psf = rp.psf + nbr + "  ";
+                    np.min_dis = rp.min_dis + rpvtx.nbrs[nbr];
                     stack.push_front(np);
                 }
             }
@@ -306,26 +320,26 @@ public:
 
         while (!stack.empty())
         {
-            Pair cp = stack.front();
+            Pair rp = stack.front();
             stack.pop_front();
-            if (processed.count(cp.vname))
+            if (processed.count(rp.vname))
             {
                 continue;
             }
 
-            processed[cp.vname] = true;
+            processed[rp.vname] = true;
 
-            if (cp.vname == dst)
+            if (rp.vname == dst)
             {
-                int temp = cp.min_time;
+                int temp = rp.min_time;
                 if (temp < min)
                 {
-                    ans = cp.psf;
+                    ans = rp.psf;
                     min = temp;
                 }
                 continue;
             }
-            Vertex rpvtx = vtces[cp.vname];
+            Vertex rpvtx = vtces[rp.vname];
             for (auto it = rpvtx.nbrs.begin(); it != rpvtx.nbrs.end(); it++)
             {
                 string nbr = it->first;
@@ -333,8 +347,8 @@ public:
                 {
                     Pair np;
                     np.vname = nbr;
-                    np.psf = cp.psf + nbr + "  ";
-                    np.min_time = cp.min_time + 60 +  rpvtx.nbrs[nbr]/10;
+                    np.psf = rp.psf + nbr + "  ";
+                    np.min_time = rp.min_time + 60 +  rpvtx.nbrs[nbr]/10;
                     stack.push_front(np);
                 }
             }
@@ -395,7 +409,87 @@ public:
         arr.push_back(res[k - 1]);
         return arr;
     }
+
+    void bookTicket(string src, string dst,User &user) {
+        if (!containsVertex(src) || !containsVertex(dst)) {
+            cout << "Invalid source or destination!" << endl;
+            return;
+        }
+        
+        int distance = dijkstra(src, dst, false);
+        int time = dijkstra(src, dst, true);
+        int fare;
+        if(distance<20)
+       fare = 5 + (distance * 5);
+        else{
+            fare=100;
+        }
+
+        cout << "From: " << src << " To: " << dst << endl;
+        cout << "Distance: " << distance << " KM" << endl;
+        cout << "Estimated Time: " << time / 28 << " minutes." << endl;
+        cout<<"fare:"<<fare <<"rupees"<<endl;
+int payment;
+        cout << "Please enter the amount you wish to pay: ";
+        cin >> payment;
+
+        if (payment == fare) {
+            if (payment == fare) {
+        user.balance -= fare; 
+        cout << "Payment successful! Thank you for booking your ticket." << endl;
+        cout << "Amount deducted: " << fare << " rupees" << endl;
+        cout << "Remaining balance: " << user.balance << " rupees" << endl;
+    } else {
+        cout << "Insufficient payment. Ticket booking failed." << endl;
+    }
+        } else {
+            cout << "Insufficient payment. Ticket booking failed." << endl;
+        }
+
+       
+    }
+
+
+
 };
+
+void userpanel(Graph_M &g, User& user) {
+    string inputUsername, inputPassword;
+
+    cout << "Enter your username: ";
+    cin >> inputUsername;
+
+    cout << "Enter your password: ";
+    cin >> inputPassword;
+
+    if (inputUsername == user.username && inputPassword == user.password) {
+        cout << "Access granted!" << endl;
+
+        g.display_Stations();
+        int a,b;
+
+        string src, dst;
+        cout << "Enter source station:(index) ";
+        cin>>a;
+        cout << "Enter destination station:(index) ";
+        cin>>b;
+
+        vector<string> keys;
+                for (auto it = Graph_M::vtces.begin(); it != Graph_M::vtces.end(); it++)
+                {
+                    keys.push_back(it->first);
+
+                }
+                src = keys[a - 1];
+                
+                dst = keys[b - 1];
+        g.bookTicket(src, dst,user);
+    }
+     else 
+    {
+        cout << "Access denied! Incorrect password." << endl;
+    }
+}
 
 unordered_map<string, Graph_M::Vertex> Graph_M::vtces;
 
@@ -493,8 +587,13 @@ int main()
     Create_Metro_Map(g);
     cout << "\n\t\t\t*WELCOME TO THE METRO APP" << endl;
 
+    User user("userB5","password1026",1000);
+    
+
     while (true)
     {
+
+
         cout << "\t\t\t\t~LIST OF ACTIONS~\n\n"
              << endl;
         cout << "1. LIST ALL THE STATIONS IN THE MAP" << endl;
@@ -503,17 +602,21 @@ int main()
         cout << "4. GET SHORTEST TIME TO REACH FROM A 'SOURCE' STATION TO 'DESTINATION' STATION" << endl;
         cout << "5. GET SHORTEST PATH (DISTANCE WISE) TO REACH FROM A 'SOURCE' STATION TO 'DESTINATION' STATION" << endl;
         cout << "6. GET FARE PRICE TO REACH FROM A 'SOURCE' STATION TO 'DESTINATION' STATION" << endl;
-        cout << "7. EXIT THE MENU" << endl;
+        cout << "7. BOOK THE TICKET" << endl;
+        cout<<"8. EXIT THE MAIN MENU"<<endl;
 
         cout << "\nENTER YOUR CHOICE FROM THE ABOVE LIST (1 to 7) : ";
 
         int choice = -1;
 
+
+
         cin >> choice;
         cout << "\n***\n"
              << endl;
 
-        if (choice == 7)
+
+        if (choice == 8)
         {
             break;
         }
@@ -532,7 +635,7 @@ int main()
 
         {
             printCodelist();
-            cout << "\n1. TO ENTER SERIAL NO. OF STATIONS\n2. TO ENTER CODE OF STATIONS\n3. TO ENTER NAME OF STATIONS\n"
+            cout << "\n1. TO ENTER SERIAL NO. OF STATIONS\n2. TO ENTER CODE OF STATIONS\n"
                  << endl;
             cout << "ENTER YOUR CHOICE:";
             int ch;
@@ -540,6 +643,7 @@ int main()
             int j;
             string st1 = "", st2 = "";
             cout << "ENTER THE SOURCE AND DESTINATION STATIONS" << endl;
+
 
             if (ch == 1)
             {
@@ -549,8 +653,10 @@ int main()
                 for (auto it = Graph_M::vtces.begin(); it != Graph_M::vtces.end(); it++)
                 {
                     keys.push_back(it->first);
+
                 }
                 st1 = keys[a - 1];
+                
                 st2 = keys[b - 1];
             }
 
@@ -577,7 +683,9 @@ int main()
                         else if (isalpha(c))
 
                         {
+                
                             code += c;
+                
                         }
                     }
 
@@ -605,8 +713,10 @@ int main()
                 break;
             }
             unordered_map<string, bool> processed;
+
             if (!g.containsVertex(st1) || !g.containsVertex(st2) || !g.hasPath(st1, st2, processed))
                 cout << "THE INPUTS ARE INVALID" << endl;
+            
             else
                 cout << "SHORTEST DISTANCE FROM " << st1 << " TO " << st2 << " IS " << g.dijkstra(st1, st2, false) << "KM" << endl;
             
@@ -617,22 +727,27 @@ int main()
 
             int srcIndex, desIndex;
             cout << "Enter the index of the source station: ";
+            
             cin >> srcIndex;
 
             cout << "Enter the index of the destination station: ";
+            
             cin >> desIndex;
 
             vector<std::string> stationNames;
             for (const auto &it : Graph_M::vtces)
             {
+            
                 stationNames.push_back(it.first);
+            
             }
 
             if (srcIndex >= 1 && srcIndex <= stationNames.size() &&
                 desIndex >= 1 && desIndex <= stationNames.size())
             {
-                std::string src = stationNames[srcIndex - 1];
-                std::string des = stationNames[desIndex - 1];
+                string src = stationNames[srcIndex - 1];
+            
+                string des = stationNames[desIndex - 1];
 
                 int shortestTime = g.dijkstra(src, des, true);
 
@@ -692,6 +807,10 @@ int main()
                 }
             }
             
+        }
+        else if(choice==7)
+        {
+            userpanel(g,user);
         }
         else if (choice == 6)
         {
@@ -774,12 +893,16 @@ int main()
             {
                 cout << "FARE PRICE TO TRAVEL FROM " << st1 << " TO " << st2 << " IS " << op * 2.5 << " RUPEES" << endl;
             }
+
+            
             
         }
         else
         {
             cout << "Please enter a valid option!" << endl;
         }
+
+        
        
     }
      return 0;
